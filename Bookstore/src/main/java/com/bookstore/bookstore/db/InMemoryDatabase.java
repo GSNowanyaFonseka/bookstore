@@ -4,6 +4,7 @@
  */
 package com.bookstore.bookstore.db;
 
+import com.bookstore.bookstore.model.Author;
 import com.bookstore.bookstore.model.Book;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,10 +21,16 @@ public class InMemoryDatabase {
     private static InMemoryDatabase instance;
     
     // storage collections
+    // book storage
     private Map<Long, Book> books = new HashMap<>();
+    // Author storage
+    private Map<Long, Author> authors = new HashMap<>();
     
     // ID generators
+    // book Id generator
     private AtomicLong bookIdGenerator = new AtomicLong(1);
+    // author Id generator
+    private AtomicLong authorIdGenerator = new AtomicLong(1);
     
     // private constructor for singleton
     private InMemoryDatabase(){
@@ -68,6 +75,55 @@ public class InMemoryDatabase {
             return true;
         }
         return false;
+    }
+    
+    // Author operations
+    public List<Author>getAllAuthors(){
+        return new ArrayList<>(authors.values());
+    }
+    
+    public Author getAuthorById(Long id){
+        return authors.get(id);
+    }
+    
+    public Author addAuthor (Author author){
+        if(authors.containsKey(author.getId())){
+            authors.put(author.getId(), author);
+            return author;
+        }
+        return null;
+    }
+    
+    public Author updateAuthor(Author author){
+        if(authors.containsKey(author.getId())){
+            authors.put(author.getId(),author);
+            return author;
+        }
+        return null;
+    }
+    
+    public boolean deleteAuthor(Long id){
+        if(authors.containsKey(id)){
+            authors.remove(id);
+            return true;
+        }
+        return false;
+    }
+    
+    // get books by author ID
+    public List<Book>getBooksByAuthorId(Long authorId){
+        List<Book> authorBooks = new ArrayList<>();
+        for(Book book : books.values()){
+            if(book.getAuthorId() != null && book.getAuthorId().equals(authorId)){
+                authorBooks.add(book);
+            }
+        }
+        return authorBooks;
+    }
+    
+    // check is author exists
+    public boolean authorExists(Long id){
+        return authors.containsKey(id);
     }
     
 }
