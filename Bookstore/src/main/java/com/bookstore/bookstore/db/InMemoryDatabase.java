@@ -6,6 +6,8 @@ package com.bookstore.bookstore.db;
 
 import com.bookstore.bookstore.model.Author;
 import com.bookstore.bookstore.model.Book;
+import com.bookstore.bookstore.model.Cart;
+import com.bookstore.bookstore.model.CartItem;
 import com.bookstore.bookstore.model.Customer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +30,8 @@ public class InMemoryDatabase {
     private Map<Long, Author> authors = new HashMap<>();
     // customer storage
     private Map<Long, Customer> customers = new HashMap<>();
-    
+    // cart storage
+    private Map<Long, Cart> carts = new HashMap<>();
     
     // ID generators
     // book Id generator
@@ -183,4 +186,99 @@ public class InMemoryDatabase {
         return customers.containsKey(id);
     }
     
+    // cart operations
+    public Cart getCartByCustomerId(Long customerId){
+        return carts.get(customerId);
+    }
+    
+    public Cart createCart(Long customerId){
+        Cart cart = new Cart(customerId);
+        carts.put(customerId, cart);
+        return cart;
+    }
+    
+    public Cart addToCart(Long customerId, CartItem item){
+        // Ensure cart exists
+        Cart cart = carts.get(customerId);
+        if(cart == null){
+            cart = createCart(customerId);
+        }
+        
+        // Ensure book exists anhd has enoght stock
+        Book book = books.get(item.getBookId());
+        if(book == null){
+            return null;  // Book not found
+        }
+        
+        // Check if adding this quantity wouls exceed stock
+        int currentQuantity = 0;
+        if(cart.getItems().containsKey(item.getBookId())){
+            currentQuantity = cart.getItems().get(item.getBookId()).getQuantity();
+        }
+        
+        if(currentQuantity + item.getQuantity() > book.getStock()){
+            return null;  // Not enough stock
+        }
+        
+        // set the current price from the book
+        item.setUnitPrice(book.getPrice());
+        
+        //Add to cart
+        cart.addItem(item);
+        return cart;
+    }
+    
+    public Cart updateCartItem(Long customerId, Long bookId, int quantity){
+        //Ensure cart exists
+        Cart cart = carts.get(customerId);
+        if(cart == null){
+            return null;  // Cart not found
+        }
+        
+        // Ensure book exists in cart
+        if(!cart.getItems().containsKey(bookId)){
+            return null;  // Book not in cart
+        }
+        
+        // Ensure book exists and has enough stock
+        Book book = books.get(bookId);
+        if(book == null){
+            return null;  // Book not found
+        }
+        
+        if(quantity > book.getStock()){
+            return null;  
+        }
+        
+        // update quantity
+        if(quantity <= 0){
+            cart.removeItem(bookId);
+        } else {
+            cart.updateItemQuantity(bookId, quantity);
+        }
+        
+        return cart;
+    }
+    
+    public Cart removeCartItem(Long customerId, long bookId){
+        // ensure cart exists
+        Cart cart = carts.get(customerId);
+        if(cart == null){
+            return null;   // cart not found
+        }
+        
+        // remove item
+        cart.removeItem(bookId);
+        return cart;
+    }
+    
+    public boolean clearCart(Long customerId){
+        Cart cart = carts.get(customerId);
+        if(cart == null){
+            return false;  // cart not found
+        }
+        
+        cart.clear();
+        return true;
+    }
 }
