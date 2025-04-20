@@ -32,7 +32,7 @@ public class CustomerResource {
     private InMemoryDatabase database = InMemoryDatabase.getInstance();
     
     //Email validation pattern
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z-0-9.-]+\\.[A-Zaz]{2,}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     
     @GET
     public List<Customer> getAllCustomers(){
@@ -99,10 +99,18 @@ public class CustomerResource {
     // Helper method to validate customer information
     private void validateCustomer(Customer customer){
         if(customer.getName() == null || customer.getName().trim().isEmpty()){
+            throw new InvalidInputException("Customer name is required");
+        }
+        
+        if(customer.getEmail() == null || customer.getEmail().trim().isEmpty()){
             throw new InvalidInputException("Customer email is required");
         }
         
         if(!EMAIL_PATTERN.matcher(customer.getEmail()).matches()){
+            throw new InvalidInputException("Invalid email format");
+        }
+        
+        if(customer.getPassword() == null || customer.getPassword().length()<6){
             throw new InvalidInputException("Password must be at least 6 characters long");
         }
     }
