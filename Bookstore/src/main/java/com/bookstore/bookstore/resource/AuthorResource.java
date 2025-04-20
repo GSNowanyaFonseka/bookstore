@@ -8,6 +8,7 @@ import com.bookstore.bookstore.db.InMemoryDatabase;
 import com.bookstore.bookstore.exception.AuthorNotFoundException;
 import com.bookstore.bookstore.model.Author;
 import com.bookstore.bookstore.model.Book;
+
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -66,11 +67,11 @@ public class AuthorResource {
     }
     
     @DELETE
-    @Path("/{id")
+    @Path("/{id}")
     public Response deleteAuthor(@PathParam("id") Long id){
         boolean deleted = database.deleteAuthor(id);
         if(!deleted){
-            throw new AuthorNotFoundException("\"Author with ID \" + id + \" does not exist");
+            throw new AuthorNotFoundException("Author with ID " + id + " does not exist");
         }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
@@ -79,7 +80,7 @@ public class AuthorResource {
     @Path("/{id}/books")
     public List<Book> getAuthorBookd(@PathParam("id") Long id){
         if(!database.authorExists(id)){
-            throw new AuthorNotFoundException("Author with ID \" + id + \" does not exist");
+            throw new AuthorNotFoundException("Author with ID " + id + " does not exist");
         }
         return database.getBooksByAuthorId(id);
     }

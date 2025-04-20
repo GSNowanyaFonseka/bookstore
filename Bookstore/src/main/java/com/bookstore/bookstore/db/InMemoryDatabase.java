@@ -87,11 +87,10 @@ public class InMemoryDatabase {
     }
     
     public Author addAuthor (Author author){
-        if(authors.containsKey(author.getId())){
-            authors.put(author.getId(), author);
-            return author;
-        }
-        return null;
+        Long id = authorIdGenerator.getAndIncrement();
+        author.setId(id);
+        authors.put(id, author);
+        return author;
     }
     
     public Author updateAuthor(Author author){
