@@ -6,6 +6,7 @@ package com.bookstore.bookstore.db;
 
 import com.bookstore.bookstore.model.Author;
 import com.bookstore.bookstore.model.Book;
+import com.bookstore.bookstore.model.Customer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,12 +26,17 @@ public class InMemoryDatabase {
     private Map<Long, Book> books = new HashMap<>();
     // Author storage
     private Map<Long, Author> authors = new HashMap<>();
+    // customer storage
+    private Map<Long, Customer> customers = new HashMap<>();
+    
     
     // ID generators
     // book Id generator
     private AtomicLong bookIdGenerator = new AtomicLong(1);
     // author Id generator
     private AtomicLong authorIdGenerator = new AtomicLong(1);
+    // customer Id generator
+    private AtomicLong customerIdGenerator = new AtomicLong(1);
     
     // private constructor for singleton
     private InMemoryDatabase(){
@@ -123,6 +129,58 @@ public class InMemoryDatabase {
     // check is author exists
     public boolean authorExists(Long id){
         return authors.containsKey(id);
+    }
+    
+    // Customer operations
+    public List<Customer> getAllCustomers(){
+        return new ArrayList<>(customers.values());
+    }
+    
+    public Customer getCustomerById(Long id){
+        return customers.get(id);
+    }
+    
+    public Customer addCustomer(Customer customer){
+        // check if email already exists
+        for(Customer existingCustomer : customers.values()){
+            if(existingCustomer.getEmail().equals(customer.getEmail())){
+                return null;  // email already exists
+            }
+        }
+        
+        Long id = customerIdGenerator.getAndIncrement();
+        customer.setId(id);
+        customers.put(id,customer);
+        return customer;
+    }
+    
+    public Customer updateCustomer(Customer customer){
+        // check if email is already used by another customer
+        for(Customer existingCustomer : customers.values()){
+            if(existingCustomer.getEmail().equals(customer.getEmail()) && 
+                    !existingCustomer.getId().equals(customer.getId())){
+                return null; // email already used by another customer
+            }
+        }
+        
+        if(customers.containsKey(customer.getId())){
+            customers.put(customer.getId(), customer);
+            return customer;
+        }
+        return null;
+    }
+    
+    public boolean deleteCustomer(Long id){
+        if(customers.containsKey(id)){
+            customers.remove(id);
+            return true;
+        }
+        return false;
+    }
+    
+    // check if customer exists
+    public boolean customerExists(Long id){
+        return customers.containsKey(id);
     }
     
 }

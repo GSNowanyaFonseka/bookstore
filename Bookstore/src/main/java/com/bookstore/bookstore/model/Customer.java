@@ -12,7 +12,7 @@ public class Customer {
     private Long id;
     private String name;
     private String email;
-    private String password;  // In a real application, this would be securely hashed
+    private String password;  
 
     // Default constructor (needed for JSON deserialization)
     public Customer() {
