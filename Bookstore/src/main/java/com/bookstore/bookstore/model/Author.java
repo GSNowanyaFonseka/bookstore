@@ -14,7 +14,8 @@ import java.util.List;
 public class Author {
     
     private Long id;
-    private String name;
+    private String firstname;
+    private String lastname;
     private String biography;
     private List<Long> bookIds;
     
@@ -24,9 +25,10 @@ public class Author {
     }
     
     // constructor with parameters
-    public Author(Long id, String name, String biography){
+    public Author(Long id, String firstname, String lastname, String biography){
         this.id = id;
-        this.name = name;
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.biography = biography;
         this.bookIds = new ArrayList<>();
     }
@@ -40,12 +42,20 @@ public class Author {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstname) {
+        this.firstname = firstname;
+    }
+    
+    public String getLastName() {
+        return lastname;
+    }
+
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
     }
 
     public String getBiography() {

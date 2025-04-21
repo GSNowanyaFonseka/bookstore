@@ -98,8 +98,12 @@ public class CustomerResource {
     
     // Helper method to validate customer information
     private void validateCustomer(Customer customer){
-        if(customer.getName() == null || customer.getName().trim().isEmpty()){
-            throw new InvalidInputException("Customer name is required");
+        if(customer.getFirstName() == null || customer.getFirstName().trim().isEmpty()){
+            throw new InvalidInputException("Customer first name is required");
+        }
+        
+        if(customer.getLastName() == null || customer.getLastName().trim().isEmpty()){
+            throw new InvalidInputException("Customer last name is required");
         }
         
         if(customer.getEmail() == null || customer.getEmail().trim().isEmpty()){

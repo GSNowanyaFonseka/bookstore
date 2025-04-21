@@ -4,6 +4,10 @@
  */
 package com.bookstore.bookstore.main;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.ws.rs.ext.ContextResolver;
+import jakarta.ws.rs.ext.Provider;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -15,7 +19,7 @@ import java.net.URI;
 public class BookstoreApp {
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "http://localhost:8080/api/";
-
+    
     // Start the HTTP server
     public static HttpServer startServer() {
         // Create a resource config that scans for JAX-RS resources and providers in com.bookstore package

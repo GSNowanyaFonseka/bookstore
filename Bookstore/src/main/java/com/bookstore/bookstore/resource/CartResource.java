@@ -6,6 +6,7 @@ package com.bookstore.bookstore.resource;
 
 import com.bookstore.bookstore.db.InMemoryDatabase;
 import com.bookstore.bookstore.exception.BookNotFoundException;
+import com.bookstore.bookstore.exception.CartNotFoundException;
 import com.bookstore.bookstore.exception.CustomerNotFoundException;
 import com.bookstore.bookstore.exception.OutOfStockException;
 import com.bookstore.bookstore.model.Book;
@@ -37,7 +38,7 @@ public class CartResource {
     public Cart getCart(@PathParam("customerId") Long customerId){
         // check if customer exists
         if(!database.customerExists(customerId)){
-            throw new CustomerNotFoundException("Customer with ID " + customerId + "does not exist");
+            throw new CartNotFoundException("Cart for customer with ID " + customerId + " does not exist");
         }
         
         // get or create cart
@@ -71,7 +72,7 @@ public class CartResource {
         //Add to cart
         Cart updatedCart = database.addToCart(customerId,item);
         if(updatedCart == null){
-            throw new OutOfStockException("Not enough stock available for book with ID " + item.getBookId());
+            throw new OutOfStockException("Not enough stock available for book with ID " + item.getBookId() + " available books: " + book.getStock() + " ,requested quantity: " + item.getQuantity());
         }
         
         return updatedCart;

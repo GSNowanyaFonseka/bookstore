@@ -61,7 +61,7 @@ public class AuthorResource {
         author.setId(id);
         Author updatedAuthor = database.updateAuthor(author);
         if(updatedAuthor == null){
-            throw new AuthorNotFoundException("Author with ID " + id + " does not exist");
+            throw new AuthorNotFoundException("Author with  " + id + " does not exist");
         }
         return updatedAuthor;
     }

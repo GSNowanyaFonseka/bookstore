@@ -7,6 +7,7 @@ package com.bookstore.bookstore.resource;
 import com.bookstore.bookstore.db.InMemoryDatabase;
 import com.bookstore.bookstore.exception.AuthorNotFoundException;
 import com.bookstore.bookstore.exception.BookNotFoundException;
+import com.bookstore.bookstore.exception.InvalidInputException;
 import com.bookstore.bookstore.model.Author;
 import com.bookstore.bookstore.model.Book;
 import jakarta.ws.rs.Consumes;
@@ -56,7 +57,15 @@ public class BookResource {
 
     // check if author exists
     if(book.getAuthorId() != null && !database.authorExists(book.getAuthorId())){
-        throw new AuthorNotFoundException("Author with ID \" + book.getAuthorId() + \" does not exist");
+        throw new AuthorNotFoundException("Author with ID " + book.getAuthorId() + " does not exist");
+    }
+    
+    if(book.getPublicationYear() <= 0 || book.getPrice() <= 0 || book.getStock() <= 0){
+        throw new InvalidInputException("Numeric values must be positive");
+    }
+    
+    if(book.getAuthorId() <= 0 ){
+        throw new InvalidInputException("Author ID can't be negative");
     }
     
     Book createdBook = database.addBook(book);
