@@ -9,6 +9,8 @@ import com.bookstore.bookstore.model.Book;
 import com.bookstore.bookstore.model.Cart;
 import com.bookstore.bookstore.model.CartItem;
 import com.bookstore.bookstore.model.Customer;
+import com.bookstore.bookstore.model.Order;
+import com.bookstore.bookstore.model.OrderItem;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,10 @@ public class InMemoryDatabase {
     private Map<Long, Customer> customers = new HashMap<>();
     // cart storage
     private Map<Long, Cart> carts = new HashMap<>();
+    // order storage
+    private Map<Long, Order> Orders = new HashMap<>();
+    private Map<Long, List<Order>> customerOrders = new HashMap<>();
+    
     
     // ID generators
     // book Id generator
@@ -40,6 +46,8 @@ public class InMemoryDatabase {
     private AtomicLong authorIdGenerator = new AtomicLong(1);
     // customer Id generator
     private AtomicLong customerIdGenerator = new AtomicLong(1);
+    // order Id generator
+    private AtomicLong orderIdGenerator = new AtomicLong(1);
     
     // private constructor for singleton
     private InMemoryDatabase(){
@@ -281,4 +289,68 @@ public class InMemoryDatabase {
         cart.clear();
         return true;
     }
+    
+    //order operations
+    public List<Order> getOrderByCustomerId(Long customerId){
+        return customerOrders.getOrDefault(customerId, new ArrayList<>());
+    }
+    
+    public Order getOrderById(Long customerId, Long orderId){
+        List<Order> orders = getOrderByCustomerId(customerId);
+        for(Order order : orders){
+            if(order.getId().equals(orderId)){
+                return order;
+            }
+        }
+        return null;
+    }
+    
+    public Order createOrderFromCart(Long customerId){
+        // check if customer exists
+        if(!customerExists(customerId)){
+            return null;
+        }
+        
+        // check if cart exists
+        Cart cart = getCartByCustomerId(customerId);
+        if(cart == null || cart.getItems().isEmpty()){
+            return null;
+        }
+        
+        // check stock levels before creating order
+        for(CartItem cartItem : cart.getItems().values()){
+            Book book = getBookId(cartItem.getBookId());
+            if(book == null || book.getStock() < cartItem.getQuantity()){
+                return null;   // not enough stock
+            }
+        } 
+        
+        // create new order
+        Long orderId = orderIdGenerator.getAndIncrement();
+        Order order = new Order(orderId, customerId);
+        
+        // Convert cart items to order items and update stock
+        for(CartItem cartItem : cart.getItems().values()){
+            Book book = getBookId(cartItem.getBookId());
+            OrderItem orderItem = new OrderItem(cartItem, book.getTitle());
+            order.addItem(orderItem);
+            
+            // update book stock
+            book.setStock(book.getStock() - cartItem.getQuantity());
+            updateBook(book);
+        }
+        
+        // save order
+        Orders.put(orderId, order);
+        
+        //Add to customer orders
+        List<Order> customerOrderList = customerOrders.getOrDefault(customerId, new ArrayList<>());
+        customerOrderList.add(order);
+        customerOrders.put(customerId, customerOrderList);
+        
+        // Clear the cart
+        clearCart(customerId);
+        
+        return order;
+    } 
 }
