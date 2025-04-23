@@ -20,7 +20,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.logging.Logger;
@@ -108,7 +107,7 @@ public class CartResource {
      * updates the quantity of a book item the customer's cart
      * @param customerId CustomerId Customer ID
      * @param bookId BOOK ID
-     * @param quantity new quantity
+     * @param item
      * @return updated cart object
      */
     @PUT
@@ -116,7 +115,10 @@ public class CartResource {
     public Cart updateCartItem(
                     @PathParam("customerId") Long customerId,
                     @PathParam("bookId")Long bookId,
-                    @QueryParam("quantity") int quantity){
+                    CartItem item){
+        
+        // Use the quantity from the CartItem object
+        int quantity = item.getQuantity();
         
         // check if customer exists
         if(!database.customerExists(customerId)){
@@ -128,7 +130,7 @@ public class CartResource {
         Cart cart = database.getCartByCustomerId(customerId);
         if(cart == null){
             LOGGER.warning("Cart not found for customer ID: " + customerId);
-            throw new BookNotFoundException("Cart for customer with ID " + customerId + " does not exist");
+            throw new CartNotFoundException("Cart for customer with ID " + customerId + " does not exist");
         }
         
         // check if book exists
