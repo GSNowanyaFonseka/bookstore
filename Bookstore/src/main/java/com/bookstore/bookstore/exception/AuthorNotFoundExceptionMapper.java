@@ -10,20 +10,33 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
+ *Exception to handle AuthorNotFoundException and return a JSON response
  * @author Hp
  */
 @Provider
 public class AuthorNotFoundExceptionMapper implements ExceptionMapper<AuthorNotFoundException>{
 
+    private static final Logger LOGGER = Logger.getLogger(AuthorNotFoundExceptionMapper.class.getName());
+    
+    /**
+     * converts an AuthorNotFoundException into an HTTP response
+     * @param exception the thrown AuthorNotFoundException
+     * @return response object with 404 status and JSON error message
+     */
     @Override
     public Response toResponse(AuthorNotFoundException exception) {
+        
+        LOGGER.log(Level.WARNING, "Handle AuthorNotFoundExceptio: {0}" , exception.getMessage());
+        // create a map to hold the error details
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", "Author NotFound");
         errorResponse.put("message", exception.getMessage());
         
+        // build and return the HTTP response with status 404 (NOT_FOUND) and JSON body
         return Response
                 .status(Response.Status.NOT_FOUND)
                 .entity(errorResponse)

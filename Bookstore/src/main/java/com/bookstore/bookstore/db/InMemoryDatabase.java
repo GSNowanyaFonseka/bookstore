@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,6 +25,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class InMemoryDatabase {
     // singleton instance
     private static InMemoryDatabase instance;
+    
+    private static final Logger LOGGER = Logger.getLogger(InMemoryDatabase.class.getName());
     
     // storage collections
     // book storage
@@ -54,7 +57,7 @@ public class InMemoryDatabase {
       
     }
     
-    // get singleton instance
+    // get singleton instance of the inmemory database
     public static synchronized InMemoryDatabase getInstance(){
         if(instance == null){
             instance = new InMemoryDatabase();
@@ -62,15 +65,28 @@ public class InMemoryDatabase {
         return instance;
     }
     
-    // book operations
+    // ------------------book operations------------------------
+    /**
+     * @return  all books
+     */
     public List<Book> getAllBooks(){
         return new ArrayList<>(books.values());
     }
     
+    /**
+     * return book by its Id
+     * @param id book id
+     * @return book 
+     */
     public Book getBookId(Long id){
         return books.get(id);
     }
     
+    /**
+     * add a new book
+     * @param book instance
+     * @return book
+     */
     public Book addBook(Book book){
         Long id = bookIdGenerator.getAndIncrement();
         book.setId(id);
@@ -78,6 +94,9 @@ public class InMemoryDatabase {
         return book;
     }
     
+    /**
+     * update existing book
+     */
     public Book updateBook(Book book){
         if(books.containsKey(book.getId())){
             books.put(book.getId(),book);
@@ -86,6 +105,9 @@ public class InMemoryDatabase {
         return null;
     }
     
+    /**
+     *delete a book by id
+     */
     public boolean deleteBook(Long id){
         if(books.containsKey(id)){
             books.remove(id);
@@ -94,7 +116,7 @@ public class InMemoryDatabase {
         return false;
     }
     
-    // Author operations
+    // -----------------------Author operations---------------------
     public List<Author>getAllAuthors(){
         return new ArrayList<>(authors.values());
     }
@@ -142,7 +164,7 @@ public class InMemoryDatabase {
         return authors.containsKey(id);
     }
     
-    // Customer operations
+    // ------------------------Customer operations----------------------------
     public List<Customer> getAllCustomers(){
         return new ArrayList<>(customers.values());
     }
@@ -194,7 +216,7 @@ public class InMemoryDatabase {
         return customers.containsKey(id);
     }
     
-    // cart operations
+    // ---------------------------------cart operations------------------------
     public Cart getCartByCustomerId(Long customerId){
         return carts.get(customerId);
     }
@@ -290,7 +312,7 @@ public class InMemoryDatabase {
         return true;
     }
     
-    //order operations
+    //----------------------------------order operations-----------------------
     public List<Order> getOrderByCustomerId(Long customerId){
         return customerOrders.getOrDefault(customerId, new ArrayList<>());
     }
@@ -353,4 +375,8 @@ public class InMemoryDatabase {
         
         return order;
     } 
+
+    public Book getBookById(Long bookId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

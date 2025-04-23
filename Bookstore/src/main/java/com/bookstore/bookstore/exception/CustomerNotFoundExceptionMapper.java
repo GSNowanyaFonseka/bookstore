@@ -10,6 +10,8 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -17,8 +19,19 @@ import java.util.Map;
  */
 @Provider
 public class CustomerNotFoundExceptionMapper implements ExceptionMapper<CustomerNotFoundException> {
+    
+    private static final Logger LOGGER = Logger.getLogger(CustomerNotFoundExceptionMapper.class.getName());
+    
+    /**
+     * converts a CustomerNotFoundException into an HTTP Response
+     * @param exception the exception that was thrown
+     * @return response object with status 404 and JSON error details
+     */
     @Override
     public Response toResponse(CustomerNotFoundException exception){
+        
+        LOGGER.log(Level.WARNING,"Customer not found: {0}", exception.getMessage());
+        
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", "Customer Not Found");
         errorResponse.put("message", exception.getMessage());

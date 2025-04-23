@@ -21,9 +21,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
- *
+ * managing book entities through RESTful APIs
+ * provide endpoints to perform CRUD operations
  * @author Hp
  */
 
@@ -31,16 +33,29 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BookResource {
+    
+    private static final Logger LOGGER = Logger.getLogger(BookResource.class.getName());
     private InMemoryDatabase database = InMemoryDatabase.getInstance();
     
+    /**
+     * retrieves all books from the database
+     * @return list of all books
+     */
     @GET
     public List<Book> getAllBooks(){
+        LOGGER.info("Fetching all books");
         return database.getAllBooks();
     }
     
+    /**
+     * retrieves a book by its ID
+     * @param id of the book to retrieve
+     * @return book object
+     */
     @GET
     @Path("/{id}")
     public Book getBook(@PathParam("id")Long id){
+       LOGGER.info("Fetching book with ID: "+ id);
        Book book = database.getBookId(id);
        if(book == null){
            throw new BookNotFoundException("Book with ID " + id + " does not exist");
@@ -48,6 +63,11 @@ public class BookResource {
        return book;
     }
     
+    /**
+     * creates a new book with the author 
+     * @param book object to create
+     * @return HTTP Response with created book
+     */
     @POST
     public Response createBook(Book book){
     //        Book createdBook = database.addBook(book);
@@ -55,16 +75,20 @@ public class BookResource {
     //                .entity(createdBook)
     //                .build();
 
+    LOGGER.info("Creating a new book : " + book.getTitle());
     // check if author exists
     if(book.getAuthorId() != null && !database.authorExists(book.getAuthorId())){
+        LOGGER.warning("Author with ID " + book.getAuthorId() + " not found during book creation");
         throw new AuthorNotFoundException("Author with ID " + book.getAuthorId() + " does not exist");
     }
     
     if(book.getPublicationYear() <= 0 || book.getPrice() <= 0 || book.getStock() <= 0){
+        LOGGER.warning("Invalid input detected while creating book");
         throw new InvalidInputException("Numeric values must be positive");
     }
     
     if(book.getAuthorId() <= 0 ){
+        LOGGER.warning("Invalid author ID during book creation");
         throw new InvalidInputException("Author ID can't be negative");
     }
     
@@ -76,6 +100,7 @@ public class BookResource {
         if(author != null){
             author.addBookId(createdBook.getId());
             database.updateAuthor(author);
+            LOGGER.info("Associated new book with author ID: " + book.getAuthorId());
         }
     }
     
@@ -84,6 +109,12 @@ public class BookResource {
             .build();
     }
     
+    /**
+     * updates an existing book with new details
+     * @param id ID of the book to update
+     * @param book the updated Book object
+     * @return updated Book object
+     */
     @PUT
     @Path("/{id}")
     public Book updateBook(@PathParam("id") Long id, Book book){
@@ -94,14 +125,18 @@ public class BookResource {
         //        }
         //        return updatedBook;
 
+        LOGGER.warning("Book with ID : " + id + " not found for update");
+        
         // check if book exists
         Book existingBook = database.getBookId(id);
         if(existingBook == null){
+            LOGGER.warning("Updating book with ID: " + id + "not found for update");
             throw new BookNotFoundException("Book with ID " + id + " does not exist");
         }
 
         // check if author exists
         if(book.getAuthorId() != null && !database.authorExists(book.getAuthorId())){
+            LOGGER.warning("Author with ID " + book.getAuthorId() + " not found during book update");
             throw new AuthorNotFoundException("Author with ID " + book.getAuthorId() + " does not exist");
         }
 
@@ -112,6 +147,8 @@ public class BookResource {
             if(oldAuthor != null){
                 oldAuthor.removeBookId(id);
                 database.updateAuthor(oldAuthor);
+                LOGGER.info("Removed book ID " + id + " from old author ID " + existingBook.getAuthorId());
+
             }
 
             // add book to new author
@@ -120,6 +157,7 @@ public class BookResource {
                 if(newAuthor != null){
                     newAuthor.addBookId(id);
                     database.updateAuthor(newAuthor);
+                    LOGGER.info("Added book ID " + id + " to new author ID " + book.getAuthorId());
                 }
             } 
         }
@@ -127,11 +165,18 @@ public class BookResource {
             return database.updateBook(book);
     }
 
+    /**
+     * deletes a book by its ID
+     * @param id of the book to delete
+     * @return HTTP Response with no content
+     */
     @DELETE 
     @Path("/{id}")
     public Response deleteBook(@PathParam("id") Long id){
+        LOGGER.info("Deleting book with ID: " + id);
         boolean deleted = database.deleteBook(id);
         if(!deleted){
+            LOGGER.warning("Book with ID " + id + " not found dor deletion");
             throw new BookNotFoundException("Book with ID " + id + " does not exist");
         }
         return Response.status(Response.Status.NO_CONTENT).build();

@@ -10,6 +10,8 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,8 +20,16 @@ import java.util.Map;
 @Provider
 public class OutOfStockExceptionMapper implements ExceptionMapper<OutOfStockException>{
 
+    private static final Logger LOGGER = Logger.getLogger(OutOfStockExceptionMapper.class.getName());
+    /**
+     * converts an OutOfStockException to an HTTP response with 400 Bad request status
+     * @param exception the OutOfStockException to be mapped to a response
+     * @return a response with status BAD_REQUEST and a JSON message body containing the error details
+     */
     @Override
     public Response toResponse(OutOfStockException exception) {
+        
+        LOGGER.log(Level.WARNING,"Handling OutOfStockException: {0}", exception.getMessage());
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", "Out of Stock");
         errorResponse.put("message", exception.getMessage());
