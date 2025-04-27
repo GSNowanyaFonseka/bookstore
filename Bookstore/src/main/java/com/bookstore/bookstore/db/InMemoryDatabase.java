@@ -53,8 +53,8 @@ public class InMemoryDatabase {
     private AtomicLong orderIdGenerator = new AtomicLong(1);
     
     // private constructor for singleton
-    private InMemoryDatabase(){
-      
+    private InMemoryDatabase(){  
+      initialzeSampleData();
     }
     
     // get singleton instance of the inmemory database
@@ -376,7 +376,40 @@ public class InMemoryDatabase {
         return order;
     } 
 
-    public Book getBookById(Long bookId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    /**
+     *method to initialize default data
+     */
+    private void initialzeSampleData() {
+        // create authors with default values
+        Author author1 = new Author(null, "John", "Smith", "Jane Smith specializes in historical novels.");
+        Author author2 = new Author(null, "Emily", "Brown", "Emily Johnson writes poetry and short stories.");
+        Author author3 = new Author(null, "Michael", "Davis", "Michael Brown is known for his science fiction works.");
+        
+        // add authors to the database
+        author1 = addAuthor(author1);
+        author2 = addAuthor(author2);
+        author3 = addAuthor(author3);
+        
+        // create sample books
+        Book book1 = new Book(null, "The Great Adventure", author1.getId(), "978-3-16-148410-0", 2015, 19.99, 10);
+        Book book2 = new Book(null, "History of the World", author2.getId(), "978-1-23-456789-7", 2018, 25.50, 5);
+        Book book3 = new Book(null, "Whispers of the Wind", author3.getId(), "978-0-12-345678-9", 2020, 15.75, 8);
+        
+        // add books to database
+        book1 = addBook(book1);
+        book2 = addBook(book2);
+        book3 = addBook(book3);
+        
+        // create sample customers
+        Customer customer1 = new Customer(null, "Charlie", "Brown", "charlie.brown@example.com", "charlie789");
+        Customer customer2 = new Customer(null, "Diana", "Smith", "diana.smith@example.com", "diana2024");
+        
+        // add customers to the database
+        addCustomer(customer1);
+        addCustomer(customer2);
+        
+        LOGGER.info("Sample data initialized successfully!!!");
+        
     }
+    
 }

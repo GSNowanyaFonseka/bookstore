@@ -7,21 +7,22 @@ package com.bookstore.bookstore.resource;
 import com.bookstore.bookstore.db.InMemoryDatabase;
 import com.bookstore.bookstore.exception.CartNotFoundException;
 import com.bookstore.bookstore.exception.CustomerNotFoundException;
+import com.bookstore.bookstore.exception.OrderNotFoundException;
 import com.bookstore.bookstore.exception.OutOfStockException;
 import com.bookstore.bookstore.model.Cart;
 import com.bookstore.bookstore.model.Order;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * RESTful APIs for managing customer orders
@@ -66,13 +67,13 @@ public class OrderResource {
         // check if customer exists
         if(!database.customerExists(customerId)){
             LOGGER.log(Level.WARNING,"Customer with ID {0} not found", customerId);
-            throw new WebApplicationException("Customer with ID " + customerId + " does not exist");
+            throw new CustomerNotFoundException("Customer with ID " + customerId + " does not exist");
         }
         
         Order order = database.getOrderById(customerId, orderId);
         if(order == null){
             LOGGER.log(Level.WARNING," Order with ID {0} not found for customer with ID {1} ", new Object[]{orderId,customerId});
-            throw new WebApplicationException("Order with ID " + orderId + " not found for customer with ID " + customerId, Response.Status.NOT_FOUND);
+            throw new OrderNotFoundException("Order with ID " + orderId + " not found for customer with ID " + customerId);
         }
         
         return order;
